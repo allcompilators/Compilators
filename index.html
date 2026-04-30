@@ -8,55 +8,43 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         :root { --bg: #050505; --panel: #111111; --accent: #007aff; --border: #1a1a1a; --text: #f5f5f7; }
-        
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #333; }
-        
         body, html { margin:0; padding:0; height:100%; background: var(--bg); color: var(--text); font-family: -apple-system, system-ui, sans-serif; overflow:hidden; }
-        
         #i_s { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s ease; }
         #i_s.h { opacity: 0; pointer-events: none; }
         .i_t { font-size: 32px; font-weight: 600; letter-spacing: -1px; background: linear-gradient(180deg, #fff 0%, #444 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; transform: translateY(20px); opacity: 0; transition: 1s ease; }
         .i_s { font-size: 13px; color: #444; transform: translateY(20px); opacity: 0; transition: 1s ease 0.3s; text-transform: lowercase; }
         .i_a .i_t, .i_a .i_s { transform: translateY(0); opacity: 1; }
-
         .app-v { display: flex; flex-direction: column; height: 100vh; opacity: 0; transition: 1.2s ease; filter: blur(15px); }
         .app-v.v { opacity: 1; filter: blur(0); }
-        
         .t_b { height: 52px; background: rgba(10,10,10,0.7); backdrop-filter: blur(25px); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 24px; gap: 20px; z-index: 10; }
         .l_s { background: #18181a; color: #fff; border: 1px solid #222; border-radius: 8px; padding: 5px 12px; font-size: 11px; outline: none; cursor: pointer; }
         .r_b { background: var(--accent); color: #fff; border: none; padding: 7px 20px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer; transition: 0.2s; }
         .r_b:active { transform: scale(0.96); opacity: 0.8; }
-
         .m_c { display: flex; flex: 1; overflow: hidden; position: relative; }
         .s_b { width: 56px; background: var(--panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding-top: 24px; gap: 28px; }
         .s_i { width: 22px; height: 22px; fill: #333; cursor: pointer; transition: 0.3s; }
         .s_i:hover { fill: var(--accent); }
-
         #e_d { flex: 1; background: transparent; color: #e1e1e1; padding: 32px; border: none; outline: none; font-family: "SF Mono", "Fira Code", monospace; font-size: 14px; resize: none; line-height: 1.7; tab-size: 4; }
-        
         .t_m { height: 200px; background: #000; border-top: 1px solid var(--border); display: flex; flex-direction: column; position: relative; }
         .t_h { background: #0a0a0a; padding: 10px 24px; font-size: 10px; color: #444; text-transform: uppercase; font-weight: 800; letter-spacing: 1.5px; border-bottom: 1px solid #111; }
         #t_o { flex: 1; padding: 18px 24px; font-family: "SF Mono", monospace; font-size: 12px; overflow-y: auto; color: #666; scroll-behavior: smooth; }
-
         #o_v { display: none; position: absolute; inset: 0; background: rgba(5,5,5,0.96); backdrop-filter: blur(40px); z-index: 50; flex-direction: column; padding: 48px; }
         #o_d { flex: 1; overflow-y: auto; color: var(--text); font-family: "SF Mono", monospace; font-size: 13px; }
         .m_r { margin-bottom: 16px; padding-left: 20px; border-left: 1px solid #333; }
         .m_u { color: var(--accent); font-weight: 700; font-size: 10px; margin-bottom: 6px; display: block; letter-spacing: 0.5px; }
-        
         .f_g { position: absolute; bottom: 12px; right: 24px; font-size: 11px; color: #222; text-decoration: none; font-weight: 500; transition: 0.3s; z-index: 100; }
         .f_g:hover { color: #555; }
     </style>
 </head>
 <body>
-
     <div id="i_s">
         <div class="i_t">Compilators GitHub</div>
         <div class="i_s">everything for your convenience</div>
     </div>
-
     <div class="app-v" id="app">
         <div class="t_b">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#007aff" stroke-width="2.5"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
@@ -67,7 +55,6 @@
             <button class="r_b" id="r_n">Execute</button>
             <div style="margin-left:auto; font-size:10px; color:#222; font-weight: 600;">STATION: <span style="color:#28a745">SECURE_CHANNEL</span></div>
         </div>
-        
         <div class="m_c">
             <div class="s_b">
                 <svg class="s_i" viewBox="0 0 24 24"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
@@ -83,74 +70,57 @@ def entry():
 entry()</textarea>
             <div id="o_v"><div id="o_d"></div></div>
         </div>
-
         <div class="t_m">
             <div class="t_h">System Logs</div>
             <div id="t_o">Init: 0x0000...</div>
             <a href="https://github.com/" class="f_g" target="_blank">GitHub</a>
         </div>
     </div>
-
     <script>
     (function() {
-        const _f_dec = (h) => {
-            return h.match(/.{1,2}/g).map(x => String.fromCharCode(parseInt(x, 16) - 5)).join('');
-        };
-
+        const _f_dec = (h) => h.match(/.{1,2}/g).map(x => String.fromCharCode(parseInt(x, 16) - 5)).join('');
         const _vK = {
             a: "464e7561567e46482d4f53716a5a5a405b5a483a6a5e645168464d6e366a6a5a7347694b3e35486c6c",
             b: "6d797975783a3434686a68756c6766797a77782e696a6b667a67792e7779606567667a6a6a646a2e687a68"
         };
-        
-        firebase.initializeApp({ apiKey: _f_dec(_vK.a), databaseURL: _f_dec(_vK.b) });
-        const _vD = firebase.database();
-        
-        const _vS = {
-            m1: "696a677a6c2e66797966686d",
-            m2: "686a68756c6766792e776a786a79",
-            m3: "28256b6a6c3a"
-        };
-
+        const _vS = { m1: "696a677a6c2e66797966686d", m2: "686a68756c6766792e776a786a79", m3: "28256b6a6c3a" };
         const ed = document.getElementById('e_d');
         const to = document.getElementById('t_o');
         const ov = document.getElementById('o_v');
         const od = document.getElementById('o_d');
         const lg = document.getElementById('l_g');
         let _uN = "Node_" + Math.random().toString(16).slice(2, 6).toUpperCase();
+        const sc = document.getElementById('i_s');
+        const ap = document.getElementById('app');
 
-        window.onload = () => {
-            const sc = document.getElementById('i_s');
-            const ap = document.getElementById('app');
+        const _f_init = () => {
+            try {
+                firebase.initializeApp({ apiKey: _f_dec(_vK.a), databaseURL: _f_dec(_vK.b) });
+                const _vD = firebase.database();
+                _vD.ref('sensors/logs').limitToLast(30).on('child_added', (s) => {
+                    const d = s.val();
+                    const el = document.createElement('div');
+                    el.className = 'm_r';
+                    el.innerHTML = `<span class="m_u">${d.user}</span>${d.msg}`;
+                    od.appendChild(el);
+                    od.scrollTop = od.scrollHeight;
+                });
+                window._vD = _vD;
+            } catch(e) {}
             setTimeout(() => sc.classList.add('i_a'), 100);
-            setTimeout(() => {
-                sc.classList.add('h');
-                ap.classList.add('v');
-            }, 2600);
+            setTimeout(() => { sc.classList.add('h'); ap.classList.add('v'); }, 2600);
         };
 
-        lg.onchange = () => {
-            ed.value = lg.value === 'cs' ? 'using System;\n\npublic class Core {\n    public static void Main() {\n        Console.WriteLine("Ready.");\n    }\n}' : '# System check\nimport os\n\ndef run():\n    pass';
-        };
+        window.onload = _f_init;
 
-        function _l(m) {
-            const t = new Date().toLocaleTimeString();
-            to.innerHTML += `\n<span style="color:#222">[${t}]</span> ${m}`;
+        const _l = (m) => {
+            to.innerHTML += `\n<span style="color:#222">[${new Date().toLocaleTimeString()}]</span> ${m}`;
             to.scrollTop = to.scrollHeight;
-        }
+        };
 
-        _vD.ref('sensors/logs').limitToLast(30).on('child_added', (s) => {
-            const d = s.val();
-            const el = document.createElement('div');
-            el.className = 'm_r';
-            el.innerHTML = `<span class="m_u">${d.user}</span>${d.msg}`;
-            od.appendChild(el);
-            od.scrollTop = od.scrollHeight;
-        });
-
-        document.getElementById('r_n').addEventListener('click', () => {
+        document.getElementById('r_n').onclick = () => {
             const lines = ed.value.split('\n');
             const last = lines[lines.length - 1].trim();
-
             if (last.startsWith(_f_dec(_vS.m1))) {
                 _uN = last.split('"')[1] || "Root";
                 ov.style.display = 'flex';
@@ -159,24 +129,27 @@ entry()</textarea>
                 ov.style.display = 'none';
                 _l("Memory buffer cleared.");
                 ed.value = "# Kernel idle.";
-            } else if (last.startsWith(_f_dec(_vS.m3))) {
+            } else if (last.startsWith(_f_dec(_vS.m3)) && window._vD) {
                 const text = last.split(_f_dec(_vS.m3))[1].trim();
-                _vD.ref('sensors/logs').push({ user: _uN, msg: text, ts: Date.now() });
+                window._vD.ref('sensors/logs').push({ user: _uN, msg: text, ts: Date.now() });
                 _l("Data packet pushed.");
             } else {
                 _l("Execution success: 0x" + Math.random().toString(16).slice(2,10).toUpperCase());
             }
-        });
+        };
 
-        ed.addEventListener('keydown', function(e) {
+        lg.onchange = () => {
+            ed.value = lg.value === 'cs' ? 'using System;\n\npublic class Core {\n    public static void Main() {\n        Console.WriteLine("Ready.");\n    }\n}' : '# System check\nimport os\n\ndef run():\n    pass';
+        };
+
+        ed.onkeydown = function(e) {
             if (e.key === 'Tab') {
                 e.preventDefault();
                 const s = this.selectionStart;
                 this.value = this.value.substring(0, s) + "    " + this.value.substring(this.selectionEnd);
                 this.selectionEnd = s + 4;
             }
-        });
-
+        };
         window.onkeydown = (e) => { if(e.keyCode == 123) return false; };
     })();
     </script>
