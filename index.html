@@ -3,192 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interface</title>
+    <title>Secure Interface v5</title>
     <style>
         :root {
             --bg: #000000;
             --glass: rgba(255, 255, 255, 0.03);
-            --border: rgba(255, 255, 255, 0.08);
+            --border: rgba(255, 255, 255, 0.12);
             --text: #ffffff;
             --sub: #86868b;
+            --accent: #4cd964;
         }
 
         * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
         body, html { 
             margin: 0; padding: 0; height: 100%; 
             background: var(--bg); color: var(--text); 
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif; 
+            font-family: -apple-system, sans-serif; 
             overflow: hidden; 
         }
 
         #splash {
             position: fixed; inset: 0; background: #000; z-index: 1000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: opacity 1s ease, visibility 1s;
         }
-        .intro-content { position: relative; display: flex; flex-direction: column; align-items: center; }
-        .intro-top {
-            font-size: 32px; font-weight: 600; letter-spacing: -0.02em;
-            transform: translateY(40px); opacity: 0;
-            animation: slideIn 1.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        
+        .intro-content { 
+            display: flex; flex-direction: column; align-items: center; 
+            text-align: center;
         }
-        .intro-bottom {
-            font-size: 14px; color: var(--sub); margin-top: 8px;
-            transform: translateY(-40px); opacity: 0;
-            animation: slideIn 1.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+
+        .gh-big {
+            width: 60px; height: 60px; fill: #fff; margin-bottom: 20px;
+            animation: pulse 2s infinite ease-in-out;
         }
-        .intro-icon {
-            position: absolute; right: -50px; top: 50%; transform: translateY(-50%);
-            opacity: 0; animation: fIn 2s 1s forwards; color: var(--sub);
+
+        .intro-top { font-size: 28px; font-weight: 600; letter-spacing: 0.2em; margin-bottom: 5px; }
+        .intro-bottom { font-size: 12px; color: var(--sub); letter-spacing: 0.3em; text-transform: uppercase; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; transform: scale(0.95); }
+            50% { opacity: 1; transform: scale(1); }
         }
-        @keyframes slideIn { to { transform: translateY(0); opacity: 1; } }
-        @keyframes fIn { to { opacity: 0.4; } }
 
         #main { 
             display: flex; flex-direction: column; height: 100vh; 
-            opacity: 0; transform: scale(0.98);
-            transition: all 1.8s cubic-bezier(0.2, 0.8, 0.2, 1); 
+            opacity: 0; transform: translateY(10px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
         }
-        #main.active { opacity: 1; transform: scale(1); }
 
         header {
-            height: 80px; display: flex; align-items: center; justify-content: space-between;
-            padding: 0 40px; border-bottom: 0.5px solid var(--border);
-            backdrop-filter: blur(20px);
+            height: 70px; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 30px; border-bottom: 1px solid var(--border);
         }
 
-        .lang-switch { display: flex; background: var(--glass); border-radius: 12px; padding: 4px; gap: 4px; }
-        .lang-switch button {
-            background: transparent; border: none; color: var(--sub); padding: 8px 16px;
-            font-size: 13px; font-weight: 500; border-radius: 8px; cursor: pointer; transition: 0.3s;
-        }
-        .lang-switch button.active { background: rgba(255,255,255,0.1); color: #fff; }
-
-        .editor-wrapper { flex: 1; display: flex; padding: 20px; gap: 20px; }
-        
         #e {
-            flex: 1; background: var(--glass); border: 0.5px solid var(--border);
-            border-radius: 24px; padding: 40px; color: #fff; outline: none;
-            resize: none; font-family: "SF Mono", monospace; font-size: 16px;
-            line-height: 1.6; transition: 0.4s;
+            flex: 1; margin: 20px; background: var(--glass); border: 1px solid var(--border);
+            border-radius: 16px; padding: 30px; color: #fff; outline: none;
+            resize: none; font-family: "SF Mono", monospace; font-size: 15px; line-height: 1.5;
         }
 
         #c {
-            position: fixed; bottom: 40px; right: 40px; width: 400px; max-height: 500px;
-            background: rgba(20, 20, 22, 0.8); backdrop-filter: blur(30px);
-            border: 0.5px solid var(--border); border-radius: 24px; display: none;
-            flex-direction: column; padding: 20px; box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            position: fixed; bottom: 90px; right: 30px; width: 320px; max-height: 350px;
+            background: rgba(15, 15, 15, 0.9); backdrop-filter: blur(20px);
+            border: 1px solid var(--border); border-radius: 16px; 
+            display: none; flex-direction: column; padding: 15px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+            overflow-y: auto; z-index: 100;
         }
-        .msg {
-            padding: 12px; border-bottom: 0.5px solid var(--border);
-            font-size: 13px; color: var(--sub); font-family: "SF Mono", monospace;
-        }
-        .msg span { color: var(--text); display: block; margin-bottom: 4px; }
 
-        footer {
-            height: 60px; padding: 0 40px; display: flex; align-items: center;
-            justify-content: space-between; font-size: 12px; color: var(--sub);
-            border-top: 0.5px solid var(--border);
-        }
-        .gh { color: var(--sub); text-decoration: none; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
-        .gh:hover { color: #fff; }
+        .msg { padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--sub); }
+        .msg span { color: var(--accent); font-weight: bold; margin-right: 8px; }
+
+        footer { height: 50px; padding: 0 30px; display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--sub); border-top: 1px solid var(--border); }
+        .gh { color: var(--sub); text-decoration: none; border: 1px solid var(--border); padding: 4px 10px; border-radius: 4px; }
     </style>
 </head>
 <body>
 
     <div id="splash">
         <div class="intro-content">
-            <div class="intro-top">GitHub Compilators</div>
-            <div class="intro-bottom">Designed for clarity.</div>
-            <div class="intro-icon">
-                <svg height="24" width="24" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
-            </div>
+            <svg class="gh-big" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+            <div class="intro-top">COMPILATORS</div>
+            <div class="intro-bottom">v5 Terminal</div>
         </div>
     </div>
 
     <div id="main">
         <header>
-            <div class="lang-switch">
-                <button class="active" onclick="setLang('py', this)">Python</button>
-                <button onclick="setLang('cs', this)">C#</button>
-            </div>
-            <div style="font-size: 12px; font-weight: 500; letter-spacing: 0.1em; color: var(--sub)">STATION ACTIVE</div>
+            <div id="flag" style="color: #ff3b30; font-size: 11px; font-weight: 700; letter-spacing: 1px;">OFFLINE</div>
+            <div style="font-size: 11px; color: var(--sub)" id="status">UNAUTHORIZED</div>
         </header>
-
-        <div class="editor-wrapper">
-            <textarea id="e" spellcheck="false">def initialize():
-    return True</textarea>
-        </div>
+        
+        <textarea id="e" spellcheck="false"># Terminal Initialized...
+# Use sys.access('Fontash1337') to unlock stream.
+# Press Ctrl + Enter to execute.</textarea>
 
         <footer>
-            <a href="https://github.com/compilators" target="_blank" class="gh">
-                <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
-                Repository
-            </a>
-            <span>2026 &copy; System</span>
+            <a href="https://github.com" class="gh">Source</a>
+            <span>2026 &copy; CORE_SYSTEM</span>
         </footer>
     </div>
 
     <div id="c"></div>
 
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
     <script>
-        const snippets = {
-            py: `def initialize():\n    return True`,
-            cs: `public class Program {\n    public static void Main() {\n    }\n}`
-        };
-
-        function setLang(l, btn) {
-            document.querySelectorAll('.lang-switch button').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById('e').value = snippets[l];
-        }
-
         (function() {
-            const _h = (s) => { let h = 0; for(let i=0; i<s.length; i++) h = ((h << 5) - h) + s.charCodeAt(i); return h; };
-            const _t = -1763784196;
-            const _k = "sys_v5";
-            const _d = (s) => s.match(/.{1,2}/g).map((c, i) => String.fromCharCode(parseInt(c, 16) ^ _k.charCodeAt(i % _k.length))).join('');
-            const _f = {
-                a: "1c171e1620021c174b0d0c040d16010024040b1959111301011a051d4b00090f1d18190514101d04",
-                b: "14171a1215444b4b1a110b141a0b181a05180f4f1a111c15031b014f0b1713061a1b0c14114f1a110a"
-            };
-
-            const load = (src) => { const s = document.createElement('script'); s.src = src; document.head.appendChild(s); };
-            load("https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js");
-            load("https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js");
-
-            let db;
-            const start = () => {
-                if (window.firebase) {
-                    firebase.initializeApp({ apiKey: _d(_f.a), databaseURL: _d(_f.b) });
-                    db = firebase.database();
-                    db.ref('stream/v5').on('child_added', (s) => {
-                        const d = s.val();
-                        const c = document.getElementById('c');
-                        c.innerHTML += `<div class="msg"><span>User_${s.key.slice(-3)}</span>${d.v}</div>`;
-                        c.scrollTop = c.scrollHeight;
-                    });
-                } else setTimeout(start, 100);
-            };
-            start();
-
             setTimeout(() => {
-                document.getElementById('splash').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('splash').style.display = 'none';
-                    document.getElementById('main').classList.add('active');
-                }, 1500);
-            }, 3000);
+                const s = document.getElementById('splash');
+                const m = document.getElementById('main');
+                s.style.opacity = '0';
+                setTimeout(() => { 
+                    s.style.visibility = 'hidden'; 
+                    m.style.opacity = '1';
+                    m.style.transform = 'translateY(0)';
+                }, 1000);
+            }, 2500);
 
-            document.onkeydown = (e) => {
-                if (e.key === 'Enter' && e.ctrlKey) {
-                    const lines = document.getElementById('e').value.split('\n');
+            const _k = "shield_v5";
+            const _d = (s) => s.match(/.{1,2}/g).map((c, i) => String.fromCharCode(parseInt(c, 16) ^ _k.charCodeAt(i % _k.length))).join('');
+            
+            const config = {
+                apiKey: _d("1c171e1620021c174b0d0c040d16010024040b1959111301011a051d4b00090f1d18190514101d04"),
+                databaseURL: _d("14171a1215444b4b1a110b141a0b181a05180f4f1a111c15031b014f0b1713061a1b0c14114f1a110a")
+            };
+
+            firebase.initializeApp(config);
+            const auth = firebase.auth();
+            const db = firebase.database();
+
+            document.getElementById('e').onkeydown = async function(ev) {
+                if (ev.key === 'Enter' && ev.ctrlKey) {
+                    const lines = this.value.split('\n');
                     const cmd = lines[lines.length - 1].trim();
-                    if (cmd.startsWith("sys.access('") && _h(cmd.split("'")[1]) === _t) {
-                        document.getElementById('c').style.display = 'flex';
-                    } else if (cmd.startsWith("sys.log('")) {
-                        const m = cmd.split("'")[1];
-                        if(db) db.ref('stream/v5').push({ v: m });
+
+                    if (cmd.includes("sys.access('Fontash1337')")) {
+                        try {
+                            await auth.signInAnonymously();
+                            document.getElementById('flag').style.color = "var(--accent)";
+                            document.getElementById('flag').innerText = "ONLINE";
+                            document.getElementById('status').innerText = "AUTHORIZED";
+                            document.getElementById('c').style.display = 'flex';
+                            this.value += "\n# ACCESS GRANTED. Stream connected.";
+                            
+                            db.ref('stream/v5').limitToLast(15).on('child_added', (snap) => {
+                                const data = snap.val();
+                                const box = document.getElementById('c');
+                                box.innerHTML += `<div class="msg"><span>[${snap.key.slice(-4)}]</span>${data.v}</div>`;
+                                box.scrollTop = box.scrollHeight;
+                            });
+                        } catch (e) {
+                            this.value += "\n# ERROR: Connection failed.";
+                        }
+                    } 
+                    else if (cmd.startsWith("sys.log('")) {
+                        const msg = cmd.split("'")[1];
+                        if (auth.currentUser) {
+                            db.ref('stream/v5').push({ v: msg, ts: Date.now() });
+                            this.value += `\n# SENT: ${msg}`;
+                        } else {
+                            this.value += "\n# ERROR: Unauthorized.";
+                        }
                     }
                 }
             };
