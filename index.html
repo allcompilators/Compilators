@@ -3,181 +3,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub Compilators</title>
+    <title>Interface</title>
     <style>
-        :root { --b: #000000; --p: #0a0a0c; --a: #ffffff; --t: #f5f5f7; --s: #86868b; --brd: #1c1c1e; --accent: #007aff; }
+        :root {
+            --bg: #000000;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #ffffff;
+            --sub: #86868b;
+        }
+
         * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
-        body, html { margin: 0; padding: 0; height: 100%; background: var(--b); color: var(--t); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif; overflow: hidden; }
+        body, html { 
+            margin: 0; padding: 0; height: 100%; 
+            background: var(--bg); color: var(--text); 
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif; 
+            overflow: hidden; 
+        }
+
+        #splash {
+            position: fixed; inset: 0; background: #000; z-index: 1000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .intro-content { position: relative; display: flex; flex-direction: column; align-items: center; }
+        .intro-top {
+            font-size: 32px; font-weight: 600; letter-spacing: -0.02em;
+            transform: translateY(40px); opacity: 0;
+            animation: slideIn 1.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+        .intro-bottom {
+            font-size: 14px; color: var(--sub); margin-top: 8px;
+            transform: translateY(-40px); opacity: 0;
+            animation: slideIn 1.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+        .intro-icon {
+            position: absolute; right: -50px; top: 50%; transform: translateY(-50%);
+            opacity: 0; animation: fIn 2s 1s forwards; color: var(--sub);
+        }
+        @keyframes slideIn { to { transform: translateY(0); opacity: 1; } }
+        @keyframes fIn { to { opacity: 0.4; } }
+
+        #main { 
+            display: flex; flex-direction: column; height: 100vh; 
+            opacity: 0; transform: scale(0.98);
+            transition: all 1.8s cubic-bezier(0.2, 0.8, 0.2, 1); 
+        }
+        #main.active { opacity: 1; transform: scale(1); }
+
+        header {
+            height: 80px; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 40px; border-bottom: 0.5px solid var(--border);
+            backdrop-filter: blur(20px);
+        }
+
+        .lang-switch { display: flex; background: var(--glass); border-radius: 12px; padding: 4px; gap: 4px; }
+        .lang-switch button {
+            background: transparent; border: none; color: var(--sub); padding: 8px 16px;
+            font-size: 13px; font-weight: 500; border-radius: 8px; cursor: pointer; transition: 0.3s;
+        }
+        .lang-switch button.active { background: rgba(255,255,255,0.1); color: #fff; }
+
+        .editor-wrapper { flex: 1; display: flex; padding: 20px; gap: 20px; }
         
-        #splash { 
-            position: fixed; inset: 0; background: #000; z-index: 1000; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1); 
-        }
-        .logo { 
-            font-size: 38px; font-weight: 600; letter-spacing: -1.5px; color: #fff; 
-            filter: blur(15px); opacity: 0; animation: reveal 2.5s cubic-bezier(0.19, 1, 0.22, 1) forwards; 
-        }
-        .sub-logo { 
-            font-size: 15px; color: var(--s); margin-top: 15px; opacity: 0; 
-            animation: fIn 1.5s 1.2s forwards; letter-spacing: 0.5px; font-weight: 300;
-        }
-        @keyframes reveal { to { filter: blur(0); opacity: 1; } }
-        @keyframes fIn { to { opacity: 1; } }
-        
-        #main { display: flex; flex-direction: column; height: 100vh; opacity: 0; transition: 1.2s ease; transform: translateY(10px); }
-        #main.active { opacity: 1; transform: translateY(0); }
-
-        #hdr { 
-            height: 60px; background: rgba(10, 10, 12, 0.8); backdrop-filter: blur(40px); 
-            border-bottom: 0.5px solid var(--brd); display: flex; align-items: center; padding: 0 25px; z-index: 10; 
-        }
-        .lang-btn {
-            background: var(--brd); border: none; color: var(--s); padding: 5px 12px; 
-            border-radius: 8px; font-size: 11px; cursor: pointer; margin-right: 8px; transition: 0.3s;
-        }
-        .lang-btn.active { background: var(--accent); color: white; }
-
-        #editor-container { flex: 1; display: flex; background: var(--b); position: relative; }
-        #side { width: 70px; background: var(--p); border-right: 0.5px solid var(--brd); display: flex; flex-direction: column; align-items: center; padding-top: 30px; gap: 25px; }
-        .dot { width: 7px; height: 7px; border-radius: 50%; background: #333; transition: 0.4s; }
-        .dot.active { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
-
-        #e { 
-            flex: 1; background: transparent; color: #e1e1e6; padding: 40px; border: none; 
-            outline: none; resize: none; font-family: "SF Mono", "JetBrains Mono", monospace; 
-            font-size: 15px; line-height: 1.7; 
-        }
-        
-        #c { 
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.96); 
-            backdrop-filter: blur(50px); z-index: 200; padding: 80px; overflow-y: auto; 
-        }
-        .m_r { 
-            margin-bottom: 15px; padding: 18px; background: rgba(255,255,255,0.03); 
-            border-radius: 20px; border: 0.5px solid var(--brd); font-family: "SF Mono", monospace; 
-            font-size: 13px; color: #d1d1d6; width: fit-content; border-left: 3px solid var(--accent);
+        #e {
+            flex: 1; background: var(--glass); border: 0.5px solid var(--border);
+            border-radius: 24px; padding: 40px; color: #fff; outline: none;
+            resize: none; font-family: "SF Mono", monospace; font-size: 16px;
+            line-height: 1.6; transition: 0.4s;
         }
 
-        #ftr { 
-            height: 45px; background: var(--p); border-top: 0.5px solid var(--brd); 
-            display: flex; align-items: center; padding: 0 25px; justify-content: space-between; 
-            font-size: 12px; color: var(--s); 
+        #c {
+            position: fixed; bottom: 40px; right: 40px; width: 400px; max-height: 500px;
+            background: rgba(20, 20, 22, 0.8); backdrop-filter: blur(30px);
+            border: 0.5px solid var(--border); border-radius: 24px; display: none;
+            flex-direction: column; padding: 20px; box-shadow: 0 30px 60px rgba(0,0,0,0.5);
         }
-        .gh-link { color: var(--t); text-decoration: none; display: flex; align-items: center; gap: 8px; transition: 0.3s; }
-        .gh-link:hover { color: var(--accent); }
+        .msg {
+            padding: 12px; border-bottom: 0.5px solid var(--border);
+            font-size: 13px; color: var(--sub); font-family: "SF Mono", monospace;
+        }
+        .msg span { color: var(--text); display: block; margin-bottom: 4px; }
+
+        footer {
+            height: 60px; padding: 0 40px; display: flex; align-items: center;
+            justify-content: space-between; font-size: 12px; color: var(--sub);
+            border-top: 0.5px solid var(--border);
+        }
+        .gh { color: var(--sub); text-decoration: none; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+        .gh:hover { color: #fff; }
     </style>
 </head>
 <body>
 
     <div id="splash">
-        <div class="logo-wrap">
-            <div class="logo">GitHub Compilators</div>
-            <div class="sub-logo">everything for your convenience</div>
+        <div class="intro-content">
+            <div class="intro-top">GitHub Compilators</div>
+            <div class="intro-bottom">Designed for clarity.</div>
+            <div class="intro-icon">
+                <svg height="24" width="24" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+            </div>
         </div>
     </div>
 
     <div id="main">
-        <div id="hdr">
-            <div id="lang-selector">
-                <button class="lang-btn active" onclick="setLang('py')">Python</button>
-                <button class="lang-btn" onclick="setLang('cs')">C#</button>
+        <header>
+            <div class="lang-switch">
+                <button class="active" onclick="setLang('py', this)">Python</button>
+                <button onclick="setLang('cs', this)">C#</button>
             </div>
-            <div style="margin-left:auto" class="stat">
-                <span id="comp-stat" style="color:var(--accent); font-size: 11px; font-weight: 600; letter-spacing: 1px;">SYSTEM READY</span>
-            </div>
-        </div>
-        <div id="editor-container">
-            <div id="side">
-                <div class="dot active"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-            </div>
-            <textarea id="e" spellcheck="false"># Welcome to GitHub Compilators v27
-import os_kernel
+            <div style="font-size: 12px; font-weight: 500; letter-spacing: 0.1em; color: var(--sub)">STATION ACTIVE</div>
+        </header>
 
-def boot():
-    return "SUCCESS"
-
-print(boot())</textarea>
+        <div class="editor-wrapper">
+            <textarea id="e" spellcheck="false">def initialize():
+    return True</textarea>
         </div>
-        <div id="ftr">
-            <a href="https://github.com/compilators" target="_blank" class="gh-link">
+
+        <footer>
+            <a href="https://github.com/compilators" target="_blank" class="gh">
                 <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
-                github.com/compilators
+                Repository
             </a>
-            <div class="conv">everything for your convenience</div>
-        </div>
+            <span>2026 &copy; System</span>
+        </footer>
     </div>
 
     <div id="c"></div>
 
     <script>
-    const snippets = {
-        py: `# Welcome to GitHub Compilators v27\nimport os_kernel\n\ndef boot():\n    return "SUCCESS"\n\nprint(boot())`,
-        cs: `using System;\n\nclass Kernel {\n    static void Main() {\n        Console.WriteLine("OS 27 Active");\n    }\n}`
-    };
-
-    function setLang(l) {
-        document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-        event.target.classList.add('active');
-        document.getElementById('e').value = snippets[l];
-    }
-
-    (function() {
-        const _l = (u) => { 
-            const s = document.createElement('script'); 
-            s.src = u; s.async = true; document.head.appendChild(s); 
-        };
-        const _h = (s) => { let h = 0; for(let i=0; i<s.length; i++) h = ((h << 5) - h) + s.charCodeAt(i); return h; };
-        const _k = "sys_v5", _t = -1763784196;
-        const _d = (s) => s.match(/.{1,2}/g).map((c, i) => String.fromCharCode(parseInt(c, 16) ^ _k.charCodeAt(i % _k.length))).join('');
-        
-        const _f = {
-            a: "1c171e1620021c174b0d0c040d16010024040b1959111301011a051d4b00090f1d18190514101d04",
-            b: "14171a1215444b4b1a110b141a0b181a05180f4f1a111c15031b014f0b1713061a1b0c14114f1a110a"
+        const snippets = {
+            py: `def initialize():\n    return True`,
+            cs: `public class Program {\n    public static void Main() {\n    }\n}`
         };
 
-        _l("https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js");
-        _l("https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js");
+        function setLang(l, btn) {
+            document.querySelectorAll('.lang-switch button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('e').value = snippets[l];
+        }
 
-        let db, _u = "usr_" + Math.random().toString(16).slice(2,5);
+        (function() {
+            const _h = (s) => { let h = 0; for(let i=0; i<s.length; i++) h = ((h << 5) - h) + s.charCodeAt(i); return h; };
+            const _t = -1763784196;
+            const _k = "sys_v5";
+            const _d = (s) => s.match(/.{1,2}/g).map((c, i) => String.fromCharCode(parseInt(c, 16) ^ _k.charCodeAt(i % _k.length))).join('');
+            const _f = {
+                a: "1c171e1620021c174b0d0c040d16010024040b1959111301011a051d4b00090f1d18190514101d04",
+                b: "14171a1215444b4b1a110b141a0b181a05180f4f1a111c15031b014f0b1713061a1b0c14114f1a110a"
+            };
 
-        const init = () => {
-            if (typeof firebase === 'undefined' || typeof firebase.database === 'undefined') return setTimeout(init, 100);
-            try {
-                firebase.initializeApp({ apiKey: _d(_f.a), databaseURL: _d(_f.b) });
-                db = firebase.database();
-                db.ref('stream/v5').limitToLast(20).on('child_added', (s) => {
-                    const d = s.val();
-                    document.getElementById('c').innerHTML += `<div class="m_r"><span style="color:var(--accent)">@${d.i}</span><br>${d.v}</div>`;
-                    document.getElementById('c').scrollTop = document.getElementById('c').scrollHeight;
-                });
-            } catch(e) {}
-            
+            const load = (src) => { const s = document.createElement('script'); s.src = src; document.head.appendChild(s); };
+            load("https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js");
+            load("https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js");
+
+            let db;
+            const start = () => {
+                if (window.firebase) {
+                    firebase.initializeApp({ apiKey: _d(_f.a), databaseURL: _d(_f.b) });
+                    db = firebase.database();
+                    db.ref('stream/v5').on('child_added', (s) => {
+                        const d = s.val();
+                        const c = document.getElementById('c');
+                        c.innerHTML += `<div class="msg"><span>User_${s.key.slice(-3)}</span>${d.v}</div>`;
+                        c.scrollTop = c.scrollHeight;
+                    });
+                } else setTimeout(start, 100);
+            };
+            start();
+
             setTimeout(() => {
                 document.getElementById('splash').style.opacity = '0';
                 setTimeout(() => {
                     document.getElementById('splash').style.display = 'none';
                     document.getElementById('main').classList.add('active');
-                }, 1200);
-            }, 3500); 
-        };
-        init();
+                }, 1500);
+            }, 3000);
 
-        document.onkeydown = (e) => {
-            if (e.key === 'Enter' && e.ctrlKey) {
-                const lines = document.getElementById('e').value.split('\n');
-                const cmd = lines[lines.length - 1].trim();
-                if (cmd.startsWith("sys.access('") && _h(cmd.split("'")[1]) === _t) {
-                    document.getElementById('c').style.display = 'block';
-                } else if (cmd.startsWith("sys.log('")) {
-                    const m = cmd.split("'")[1];
-                    if(db) db.ref('stream/v5').push({ i: _u, v: m });
+            document.onkeydown = (e) => {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                    const lines = document.getElementById('e').value.split('\n');
+                    const cmd = lines[lines.length - 1].trim();
+                    if (cmd.startsWith("sys.access('") && _h(cmd.split("'")[1]) === _t) {
+                        document.getElementById('c').style.display = 'flex';
+                    } else if (cmd.startsWith("sys.log('")) {
+                        const m = cmd.split("'")[1];
+                        if(db) db.ref('stream/v5').push({ v: m });
+                    }
                 }
-            }
-        };
-    })();
+            };
+        })();
     </script>
 </body>
 </html>
