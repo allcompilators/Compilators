@@ -165,7 +165,7 @@
             let _db = null; let _auth = false;
             
             const _t = [
-                "import os\nimport sys\n\n# Configure build parameters\n# sys.settrace('channel_id')\n\ndef main():\n    print('Initialize compiler...')\n\nif __name__ == '__main__':\n    main()",
+                "import os\nimport sys\n\n# --- ПАМЯТКА ПО ЧАТУ ---\n# 1. Напиши: sys.settrace('1') (или '2', '3')\n# 2. Нажми Ctrl + Enter для коннекта\n# 3. Для отправки: print('Текст') + Ctrl + Enter\n# -----------------------\n\ndef main():\n    print('Initialize compiler...')\n\nif __name__ == '__main__':\n    main()",
                 "using System;\n\nnamespace App {\n    class Program {\n        static void Main() {\n            Console.WriteLine(\"Compiling...\");\n        }\n    }\n}",
                 "{\n  \"compilerOptions\": {\n    \"target\": \"es2026\",\n    \"module\": \"commonjs\",\n    \"strict\": true\n  }\n}"
             ];
