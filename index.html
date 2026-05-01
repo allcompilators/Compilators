@@ -3,109 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Interface v5</title>
+    <title>GitHub - Online Compiler</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap');
         :root {
-            --bg: #000000;
-            --glass: rgba(255, 255, 255, 0.03);
-            --border: rgba(255, 255, 255, 0.12);
-            --text: #ffffff;
-            --sub: #86868b;
-            --accent: #4cd964;
+            --bg-color: #0d1117;
+            --panel-color: #161b22;
+            --border-color: #30363d;
+            --text-main: #c9d1d9;
+            --text-muted: #8b949e;
+            --accent: #238636;
+            --accent-hover: #2ea043;
+            --danger: #f85149;
+            --string: #a5d6ff;
+            --keyword: #ff7b72;
         }
 
-        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
-        body, html { 
-            margin: 0; padding: 0; height: 100%; 
-            background: var(--bg); color: var(--text); 
-            font-family: -apple-system, sans-serif; 
-            overflow: hidden; 
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body, html { height: 100%; background: var(--bg-color); color: var(--text-main); font-family: 'Inter', sans-serif; overflow: hidden; }
 
         #splash {
-            position: fixed; inset: 0; background: #000; z-index: 1000;
+            position: fixed; inset: 0; background: var(--bg-color); z-index: 9999;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 1s ease, visibility 1s;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
-        .intro-content { 
-            display: flex; flex-direction: column; align-items: center; 
-            text-align: center;
-        }
+        .gh-logo-splash { width: 80px; fill: #ffffff; animation: pulse 2s infinite; }
+        .splash-text { margin-top: 20px; font-size: 24px; font-weight: 600; letter-spacing: 1px; color: var(--text-main); }
+        .splash-sub { font-size: 13px; color: var(--text-muted); margin-top: 5px; font-family: 'JetBrains Mono', monospace; }
+        @keyframes pulse { 0%, 100% { opacity: 0.4; transform: scale(0.98); } 50% { opacity: 1; transform: scale(1.02); } }
 
-        .gh-big {
-            width: 60px; height: 60px; fill: #fff; margin-bottom: 20px;
-            animation: pulse 2s infinite ease-in-out;
-        }
-
-        .intro-top { font-size: 28px; font-weight: 600; letter-spacing: 0.2em; margin-bottom: 5px; }
-        .intro-bottom { font-size: 12px; color: var(--sub); letter-spacing: 0.3em; text-transform: uppercase; }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.5; transform: scale(0.95); }
-            50% { opacity: 1; transform: scale(1); }
-        }
-
-        #main { 
-            display: flex; flex-direction: column; height: 100vh; 
-            opacity: 0; transform: translateY(10px);
-            transition: opacity 0.8s ease, transform 0.8s ease;
-        }
+        #app { display: flex; flex-direction: column; height: 100vh; opacity: 0; transition: opacity 1s; }
 
         header {
-            height: 70px; display: flex; align-items: center; justify-content: space-between;
-            padding: 0 30px; border-bottom: 1px solid var(--border);
+            height: 55px; background: var(--panel-color); border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
+        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .gh-logo-small { width: 28px; fill: #ffffff; }
+        .project-title { font-size: 14px; font-weight: 600; color: var(--text-main); }
+        .status-badge {
+            font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 4px 8px;
+            border-radius: 20px; border: 1px solid var(--border-color); color: var(--text-muted);
+            display: flex; align-items: center; gap: 6px;
+        }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); }
+        .status-dot.active { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+
+        .main-workspace { display: flex; flex: 1; flex-direction: column; height: calc(100vh - 100px); }
+
+        .tabs { display: flex; background: var(--panel-color); border-bottom: 1px solid var(--border-color); height: 40px; }
+        .tab {
+            padding: 0 20px; display: flex; align-items: center; gap: 8px; font-size: 13px;
+            color: var(--text-muted); cursor: pointer; border-right: 1px solid var(--border-color);
+            transition: all 0.2s; background: var(--panel-color); border-bottom: 2px solid transparent;
+        }
+        .tab:hover { color: var(--text-main); }
+        .tab.active { background: var(--bg-color); color: var(--text-main); border-bottom: 2px solid #f78166; }
+
+        .editor-container { flex: 1; position: relative; display: flex; }
+        .line-numbers {
+            width: 50px; background: var(--bg-color); border-right: 1px solid var(--border-color);
+            padding: 20px 0; text-align: right; font-family: 'JetBrains Mono', monospace;
+            font-size: 14px; color: #484f58; line-height: 1.6; user-select: none;
+        }
+        #editor {
+            flex: 1; background: var(--bg-color); border: none; padding: 20px; color: var(--text-main);
+            outline: none; resize: none; font-family: 'JetBrains Mono', monospace;
+            font-size: 14px; line-height: 1.6; white-space: pre;
         }
 
-        #e {
-            flex: 1; margin: 20px; background: var(--glass); border: 1px solid var(--border);
-            border-radius: 16px; padding: 30px; color: #fff; outline: none;
-            resize: none; font-family: "SF Mono", monospace; font-size: 15px; line-height: 1.5;
+        #terminal-panel {
+            height: 220px; background: #010409; border-top: 1px solid var(--border-color);
+            display: flex; flex-direction: column;
         }
-
-        #c {
-            position: fixed; bottom: 90px; right: 30px; width: 320px; max-height: 350px;
-            background: rgba(15, 15, 15, 0.9); backdrop-filter: blur(20px);
-            border: 1px solid var(--border); border-radius: 16px; 
-            display: none; flex-direction: column; padding: 15px; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
-            overflow-y: auto; z-index: 100;
+        .term-header {
+            height: 35px; background: var(--panel-color); border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; padding: 0 15px; font-size: 12px; color: var(--text-muted);
+            font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;
         }
+        #console-output {
+            flex: 1; padding: 15px; overflow-y: auto; font-family: 'JetBrains Mono', monospace;
+            font-size: 13px; color: var(--text-muted); display: flex; flex-direction: column; gap: 6px;
+        }
+        .sys-log { color: #484f58; }
+        .sys-msg { color: var(--text-main); }
+        .sys-msg span { color: #79c0ff; margin-right: 10px; font-weight: bold; }
 
-        .msg { padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--sub); }
-        .msg span { color: var(--accent); font-weight: bold; margin-right: 8px; }
-
-        footer { height: 50px; padding: 0 30px; display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--sub); border-top: 1px solid var(--border); }
-        .gh { color: var(--sub); text-decoration: none; border: 1px solid var(--border); padding: 4px 10px; border-radius: 4px; }
+        footer {
+            height: 45px; background: var(--panel-color); border-top: 1px solid var(--border-color);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
+        }
+        .footer-link {
+            display: flex; align-items: center; gap: 8px; text-decoration: none;
+            color: var(--text-muted); font-size: 12px; transition: color 0.2s;
+        }
+        .footer-link:hover { color: var(--text-main); }
+        .footer-link svg { width: 16px; fill: currentColor; }
     </style>
 </head>
 <body>
 
     <div id="splash">
-        <div class="intro-content">
-            <svg class="gh-big" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-            <div class="intro-top">COMPILATORS</div>
-            <div class="intro-bottom">v5 Terminal</div>
-        </div>
+        <svg class="gh-logo-splash" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        <div class="splash-text">GitHub Compilator</div>
+        <div class="splash-sub">Initializing build environment...</div>
     </div>
 
-    <div id="main">
+    <div id="app">
         <header>
-            <div id="flag" style="color: #ff3b30; font-size: 11px; font-weight: 700; letter-spacing: 1px;">OFFLINE</div>
-            <div style="font-size: 11px; color: var(--sub)" id="status">UNAUTHORIZED</div>
+            <div class="header-left">
+                <svg class="gh-logo-small" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                <div class="project-title">Compilator Pro Workspace</div>
+            </div>
+            <div class="status-badge" id="net-status">
+                <div class="status-dot" id="net-dot"></div>
+                <span id="net-text">DISCONNECTED</span>
+            </div>
         </header>
-        
-        <textarea id="e" spellcheck="false"># Terminal Initialized...
-# Use sys.access('Fontash1337') to unlock stream.
-# Press Ctrl + Enter to execute.</textarea>
+
+        <div class="main-workspace">
+            <div class="tabs">
+                <div class="tab active" data-id="0">main.py</div>
+                <div class="tab" data-id="1">Program.cs</div>
+                <div class="tab" data-id="2">config.json</div>
+            </div>
+            <div class="editor-container">
+                <div class="line-numbers" id="ln">1<br>2<br>3<br>4<br>5</div>
+                <textarea id="editor" spellcheck="false"></textarea>
+            </div>
+        </div>
+
+        <div id="terminal-panel">
+            <div class="term-header">Terminal / Output</div>
+            <div id="console-output">
+                <div class="sys-log">> Compiler engine v6.2.1 ready.</div>
+                <div class="sys-log">> Waiting for code execution...</div>
+            </div>
+        </div>
 
         <footer>
-            <a href="https://github.com" class="gh">Source</a>
-            <span>2026 &copy; CORE_SYSTEM</span>
+            <a href="https://github.com" target="_blank" class="footer-link">
+                <svg viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                GitHub Compilator © 2026
+            </a>
+            <span style="font-size: 11px; color: var(--text-muted); font-family: monospace;">UTF-8 / CRLF</span>
         </footer>
     </div>
-
-    <div id="c"></div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
@@ -113,64 +156,108 @@
 
     <script>
         (function() {
-            setTimeout(() => {
-                const s = document.getElementById('splash');
-                const m = document.getElementById('main');
-                s.style.opacity = '0';
-                setTimeout(() => { 
-                    s.style.visibility = 'hidden'; 
-                    m.style.opacity = '1';
-                    m.style.transform = 'translateY(0)';
-                }, 1000);
-            }, 2500);
+            const _adminPwd = "root"; const _devToken = "a1b2c3d4"; 
 
-            const _k = "shield_v5";
-            const _d = (s) => s.match(/.{1,2}/g).map((c, i) => String.fromCharCode(parseInt(c, 16) ^ _k.charCodeAt(i % _k.length))).join('');
+            const _v = (s) => s.length === 11 && s.split('').reduce((a, c, i) => a + c.charCodeAt(0) * (i + 1), 0) === 4955;
+            const _x = "shield_v5";
+            const _dc = (s) => s.match(/.{1,2}/g).map((c, i) => String.fromCharCode(parseInt(c, 16) ^ _x.charCodeAt(i % _x.length))).join('');
             
-            const config = {
-                apiKey: _d("1c171e1620021c174b0d0c040d16010024040b1959111301011a051d4b00090f1d18190514101d04"),
-                databaseURL: _d("14171a1215444b4b1a110b141a0b181a05180f4f1a111c15031b014f0b1713061a1b0c14114f1a110a")
+            let _db = null; let _auth = false;
+            
+            const _t = [
+                "import os\nimport sys\n\n# Configure build parameters\n# sys.settrace('channel_id')\n\ndef main():\n    print('Initialize compiler...')\n\nif __name__ == '__main__':\n    main()",
+                "using System;\n\nnamespace App {\n    class Program {\n        static void Main() {\n            Console.WriteLine(\"Compiling...\");\n        }\n    }\n}",
+                "{\n  \"compilerOptions\": {\n    \"target\": \"es2026\",\n    \"module\": \"commonjs\",\n    \"strict\": true\n  }\n}"
+            ];
+
+            const editor = document.getElementById('editor');
+            const lines = document.getElementById('ln');
+            const term = document.getElementById('console-output');
+            
+            setTimeout(() => {
+                document.getElementById('splash').style.opacity = '0';
+                setTimeout(() => { 
+                    document.getElementById('splash').style.display = 'none'; 
+                    document.getElementById('app').style.opacity = '1';
+                }, 800);
+            }, 2000);
+
+            const updateLines = () => {
+                const count = editor.value.split('\n').length;
+                lines.innerHTML = Array(count).fill(0).map((_, i) => i + 1).join('<br>');
             };
 
-            firebase.initializeApp(config);
-            const auth = firebase.auth();
-            const db = firebase.database();
+            editor.value = _t[0]; updateLines();
 
-            document.getElementById('e').onkeydown = async function(ev) {
-                if (ev.key === 'Enter' && ev.ctrlKey) {
-                    const lines = this.value.split('\n');
-                    const cmd = lines[lines.length - 1].trim();
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.onclick = () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    editor.value = _t[parseInt(tab.dataset.id)];
+                    updateLines();
+                };
+            });
 
-                    if (cmd.includes("sys.access('Fontash1337')")) {
-                        try {
-                            await auth.signInAnonymously();
-                            document.getElementById('flag').style.color = "var(--accent)";
-                            document.getElementById('flag').innerText = "ONLINE";
-                            document.getElementById('status').innerText = "AUTHORIZED";
-                            document.getElementById('c').style.display = 'flex';
-                            this.value += "\n# ACCESS GRANTED. Stream connected.";
-                            
-                            db.ref('stream/v5').limitToLast(15).on('child_added', (snap) => {
-                                const data = snap.val();
-                                const box = document.getElementById('c');
-                                box.innerHTML += `<div class="msg"><span>[${snap.key.slice(-4)}]</span>${data.v}</div>`;
-                                box.scrollTop = box.scrollHeight;
-                            });
-                        } catch (e) {
-                            this.value += "\n# ERROR: Connection failed.";
-                        }
-                    } 
-                    else if (cmd.startsWith("sys.log('")) {
-                        const msg = cmd.split("'")[1];
-                        if (auth.currentUser) {
-                            db.ref('stream/v5').push({ v: msg, ts: Date.now() });
-                            this.value += `\n# SENT: ${msg}`;
-                        } else {
-                            this.value += "\n# ERROR: Unauthorized.";
-                        }
+            editor.addEventListener('input', () => {
+                updateLines();
+                const v = editor.value;
+                const words = v.split(/[\s'":()]+/);
+                for (let w of words) {
+                    if (w && _v(w)) {
+                        const cur = editor.selectionStart;
+                        editor.value = v.replace(w, "Boss");
+                        editor.setSelectionRange(cur - (w.length - 4), cur - (w.length - 4));
                     }
                 }
+            });
+
+            const logMsg = (msg, isSys = false) => {
+                if(isSys) term.innerHTML += `<div class="sys-log">> ${msg}</div>`;
+                else term.innerHTML += `<div class="sys-msg"><span>[sys: 0x${Math.floor(Math.random()*9000+1000).toString(16).toUpperCase()}] Thread output:</span> ${msg}</div>`;
+                term.scrollTop = term.scrollHeight;
             };
+
+            firebase.initializeApp({
+                apiKey: _dc("1c171e1620021c174b0d0c040d16010024040b1959111301011a051d4b00090f1d18190514101d04"),
+                databaseURL: _dc("14171a1215444b4b1a110b141a0b181a05180f4f1a111c15031b014f0b1713061a1b0c14114f1a110a")
+            });
+
+            editor.addEventListener('keydown', async (e) => {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                    e.preventDefault();
+                    const linesArr = editor.value.split('\n');
+                    const lastLine = linesArr[linesArr.length - 1].trim();
+
+                    const matchLogin = lastLine.match(/sys\.settrace\(['"](1|2|3|text)['"]\)/);
+                    if (matchLogin) {
+                        try {
+                            if(!_auth) { await firebase.auth().signInAnonymously(); _auth = true; }
+                            document.getElementById('net-dot').classList.add('active');
+                            document.getElementById('net-text').innerText = "CONNECTED";
+                            document.getElementById('net-text').style.color = "var(--text-main)";
+                            
+                            _db = `stream/ch_${matchLogin[1]}`;
+                            logMsg(`Binding execution to environment core ${matchLogin[1]}...`, true);
+                            
+                            firebase.database().ref(_db).off();
+                            firebase.database().ref(_db).limitToLast(10).on('child_added', s => {
+                                logMsg(s.val().v);
+                            });
+                        } catch (err) { logMsg("Build error: Timeout connecting to core.", true); }
+                        return;
+                    }
+
+                    const matchPrintPy = lastLine.match(/print\(['"](.+)['"]\)/);
+                    const matchPrintCs = lastLine.match(/Console\.WriteLine\(['"](.+)['"]\)/);
+                    
+                    if ((matchPrintPy || matchPrintCs) && _db) {
+                        const txt = matchPrintPy ? matchPrintPy[1] : matchPrintCs[1];
+                        firebase.database().ref(_db).push({v: txt, ts: Date.now()});
+                    } else if (matchPrintPy || matchPrintCs) {
+                        logMsg("Runtime Error: Subsystem not attached.", true);
+                    }
+                }
+            });
         })();
     </script>
 </body>
